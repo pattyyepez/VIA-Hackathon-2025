@@ -100,6 +100,8 @@ type CanvasViewProps = {
 
 const CanvasView: React.FC<CanvasViewProps> = ({ thoughts, onThoughtClick }) => {
   const layerRef = useRef<any>(null);
+  const stageRef = useRef<any>(null); // ✅ This line is required
+
 
   useEffect(() => {
     const layer = layerRef.current;
@@ -137,14 +139,26 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts, onThoughtClick }) => 
     anim.start();
   }, []);
   
-  const stageRef = useRef<any>(null);
-
+  const handleBubbleClick = (x: number, y: number, text: string) => {
+    onThoughtClick({ x, y, text });
+  };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       <img
   src="/logo.png"
   alt="logo"
+
+  style={{
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    width: 80,
+    height: 80,
+    zIndex: 10,
+    cursor: 'pointer',
+    pointerEvents: 'auto', // 👈 makes it clickable
+  }}
   
   onClick={() => {
     if (stageRef.current) {
@@ -156,17 +170,6 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts, onThoughtClick }) => 
         easing: Konva.Easings.EaseInOut, // smoother motion
       });
     }
-  }}
-
-  style={{
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    width: 80,
-    height: 80,
-    zIndex: 10,
-    cursor: 'pointer',
-    pointerEvents: 'auto', // 👈 makes it clickable
   }}
 />
 
