@@ -144,7 +144,7 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
         width={window.innerWidth}
         height={window.innerHeight}
         draggable
-        style={{ background: '#ffffff' }}
+        
       >
         {/* Capa principal con burbujas */}
         <Layer ref={layerRef}>
