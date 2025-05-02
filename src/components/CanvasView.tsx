@@ -61,15 +61,16 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
       )}
       <Text
         text={text}
-        fontSize={14}
-        fontFamily="Arial"
-        fill="#000"
+        fontSize={19}
+        fontFamily="Helvetica"
+        fontStyle='bold'
+        fill="#9d8189"
         width={80}
         height={60}
         align="center"
         verticalAlign="middle"
         offsetX={40}
-        offsetY={30}
+        offsetY={40}
       />
     </Group>
   );
@@ -124,7 +125,7 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
       width={window.innerWidth}
       height={window.innerHeight}
       draggable
-      style={{ background: '#ffffff' }}
+      style={{}}
     >
       <Layer ref={layerRef}>
         {thoughts.map((t, i) => (

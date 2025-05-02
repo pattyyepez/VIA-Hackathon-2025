@@ -23,7 +23,23 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      {/* 🌈 Animated gradient background */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 0,
+          background: 'linear-gradient(115deg, rgba(255,255,255,0.9), rgba(255,192,203,0.5), rgba(173,216,230,0.3))',
+          backgroundSize: '400% 400%',
+          animation: 'gradientShift 15s ease infinite',
+        }}
+      />
+
+      {/* 📝 Thought input box */}
       <input
         type="text"
         value={newText}
@@ -34,31 +50,35 @@ const App: React.FC = () => {
             setNewText('');
           }
         }}
-        placeholder="What are you thinking..."
+        placeholder="what are you thinking..."
         style={{
           position: 'absolute',
-          top: '90px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '500px',
-          padding: '12px 16px',
-          fontSize: '21px',
-          border: 'none',
-          outline: 'none',
-          backgroundColor: 'rgba(255, 255, 255, 0.3)',
-          color: '#333',
-          borderRadius: '12px',
-          textAlign: 'center',
-          fontFamily: 'Arial',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backdropFilter: 'blur(6px)',
-          zIndex: 100,
+            top: '90px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '500px',
+            padding: '12px 16px',
+            fontSize: '21px',
+            border: 'none',
+            outline: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            color: '#333',
+            borderRadius: '12px',
+            textAlign: 'left',
+            fontFamily: 'Helvetica',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 100,
         }}
       />
-      <CanvasView thoughts={thoughts} />
+
+      {/* 🧠 Infinite canvas of thoughts */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <CanvasView thoughts={thoughts} />
+      </div>
     </div>
   );
-  
 };
 
 export default App;
