@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CanvasView from './components/CanvasView';
+import ThoughtForm from './components/ThoughtForm';
 
 type Thought = {
   x: number;
@@ -10,6 +11,10 @@ type Thought = {
 const App: React.FC = () => {
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [newText, setNewText] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [activeThought, setActiveThought] = useState<Thought | null>(null);
 
   const addThought = (text: string) => {
     const angle = Math.random() * 2 * Math.PI;
@@ -20,11 +25,23 @@ const App: React.FC = () => {
       text,
     };
     setThoughts((prev) => [...prev, newThought]);
+  
+    setActiveThought(newThought);
+    setTitle(text);
+    setBody('');
+    setFormOpen(true);
+  };
+  
+
+  const handleThoughtClick = (thought: Thought) => {
+    setActiveThought(thought);
+    setTitle(thought.text);
+    setBody('');
+    setFormOpen(true);
   };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      {/* 🌈 Animated gradient background */}
       <div
         style={{
           position: 'absolute',
@@ -39,7 +56,6 @@ const App: React.FC = () => {
         }}
       />
 
-      {/* 📝 Thought input box */}
       <input
         type="text"
         value={newText}
@@ -53,30 +69,43 @@ const App: React.FC = () => {
         placeholder="what are you thinking..."
         style={{
           position: 'absolute',
-            top: '90px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '500px',
-            padding: '12px 16px',
-            fontSize: '21px',
-            border: 'none',
-            outline: 'none',
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            color: '#333',
-            borderRadius: '12px',
-            textAlign: 'left',
-            fontFamily: 'Helvetica',
-            fontWeight: 'bold',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            backdropFilter: 'blur(6px)',
-            zIndex: 100,
+          top: '90px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '400px',
+          padding: '12px 16px',
+          fontSize: '21px',
+          border: 'none',
+          outline: 'none',
+          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+          color: '#333',
+          borderRadius: '12px',
+          textAlign: 'left',
+          fontFamily: 'Helvetica',
+          fontWeight: 'bold',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(6px)',
+          zIndex: 100,
         }}
       />
 
-      {/* 🧠 Infinite canvas of thoughts */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <CanvasView thoughts={thoughts} />
+        <CanvasView thoughts={thoughts} onThoughtClick={handleThoughtClick} />
       </div>
+
+      {formOpen && (
+        <ThoughtForm
+          title={title}
+          body={body}
+          setTitle={setTitle}
+          setBody={setBody}
+          onClose={() => setFormOpen(false)}
+          onSubmit={() => {
+            alert(`AI:\nTitle: ${title}\nBody: ${body}`);
+            setFormOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };
