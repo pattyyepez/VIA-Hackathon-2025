@@ -18,6 +18,7 @@ type ThoughtBubbleProps = {
 const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
   const groupRef = useRef<Konva.Group>(null);
   const [svgImage] = useImage('/cloud.png'); 
+  
 
   const handleMouseEnter = () => {
     if (groupRef.current) {
@@ -98,6 +99,7 @@ type CanvasViewProps = {
 
 const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
   const layerRef = useRef<any>(null);
+  const [logoImage] = useImage('/logo.png');
 
   useEffect((): void => {
     const layer = layerRef.current;
@@ -137,18 +139,32 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
   }, []);
 
   return (
-    <Stage
-      width={window.innerWidth}
-      height={window.innerHeight}
-      draggable
-      style={{ background: '#ffffff' }}
-    >
-      <Layer ref={layerRef}>
-        {thoughts.map((t, i) => (
-          <ThoughtBubble key={i} x={t.x} y={t.y} text={t.text} />
-        ))}
-      </Layer>
-    </Stage>
+      <Stage
+        width={window.innerWidth}
+        height={window.innerHeight}
+        draggable
+        style={{ background: '#ffffff' }}
+      >
+        {/* Capa principal con burbujas */}
+        <Layer ref={layerRef}>
+          {thoughts.map((t, i) => (
+            <ThoughtBubble key={i} x={t.x} y={t.y} text={t.text} />
+          ))}
+        </Layer>
+    
+        {/* Capa fija para el logo */}
+        <Layer listening={false}>
+          {logoImage && (
+            <Image
+              image={logoImage}
+              x={20}
+              y={20}
+              width={80}
+              height={80}
+            />
+          )}
+        </Layer>
+      </Stage>    
   );
 };
 
