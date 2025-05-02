@@ -134,28 +134,49 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
 
     anim.start();
   }, []);
+  
+  const stageRef = useRef<any>(null);
+
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       <img
-        src="/logo.png"
-        alt="logo"
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-          width: 80,
-          height: 80,
-          zIndex: 10,
-          pointerEvents: 'none',
-        }}
-      />
+  src="/logo.png"
+  alt="logo"
+  
+  onClick={() => {
+    if (stageRef.current) {
+      stageRef.current.to({
+        position: { x: 0, y: 0 },
+        scaleX: 1,
+        scaleY: 1,
+        duration: 1.2, // smoother duration
+        easing: Konva.Easings.EaseInOut, // smoother motion
+      });
+    }
+  }}
+
+  style={{
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    width: 80,
+    height: 80,
+    zIndex: 10,
+    cursor: 'pointer',
+    pointerEvents: 'auto', // 👈 makes it clickable
+  }}
+/>
+
       <Stage
+        ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
         draggable
       >
+        
         <Layer ref={layerRef}>
+          
           <Rect
             x={0}
             y={0}
