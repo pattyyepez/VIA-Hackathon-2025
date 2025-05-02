@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import React, { useEffect, useRef } from 'react';
-import { Stage, Layer, Group, Image, Text } from 'react-konva';
+import { Stage, Layer, Group, Image, Text, Rect } from 'react-konva';
 import useImage from 'use-image';
 
 type Thought = {
@@ -18,7 +18,6 @@ type ThoughtBubbleProps = {
 const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
   const groupRef = useRef<Konva.Group>(null);
   const [svgImage] = useImage('/cloud.png'); 
-  
 
   const handleMouseEnter = () => {
     if (groupRef.current) {
@@ -66,16 +65,14 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
       onMouseLeave={handleMouseLeave}
       onDblClick={handleDblClick}
     >
-      
       {svgImage && (
         <Image
-        image={svgImage}
-        width={200}
-        height={200}
-        offsetX={100}
-        offsetY={100}
-      />
-      
+          image={svgImage}
+          width={200}
+          height={200}
+          offsetX={100}
+          offsetY={100}
+        />
       )}
       <Text
         text={text}
@@ -100,7 +97,6 @@ type CanvasViewProps = {
 
 const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
   const layerRef = useRef<any>(null);
-  const [logoImage] = useImage('/logo.png');
 
   useEffect((): void => {
     const layer = layerRef.current;
@@ -140,32 +136,39 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
   }, []);
 
   return (
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      <img
+        src="/logo.png"
+        alt="logo"
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          width: 80,
+          height: 80,
+          zIndex: 10,
+          pointerEvents: 'none',
+        }}
+      />
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
         draggable
-        
       >
-        {/* Capa principal con burbujas */}
         <Layer ref={layerRef}>
+          <Rect
+            x={0}
+            y={0}
+            width={window.innerWidth}
+            height={window.innerHeight}
+          
+          />
           {thoughts.map((t, i) => (
             <ThoughtBubble key={i} x={t.x} y={t.y} text={t.text} />
           ))}
         </Layer>
-    
-        {/* Capa fija para el logo */}
-        <Layer listening={false}>
-          {logoImage && (
-            <Image
-              image={logoImage}
-              x={20}
-              y={20}
-              width={80}
-              height={80}
-            />
-          )}
-        </Layer>
-      </Stage>    
+      </Stage>
+    </div>
   );
 };
 
