@@ -30,6 +30,22 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
     }
   };
 
+  const handleDblClick = () => {
+    if (groupRef.current) {
+      const group = groupRef.current;
+      group.to({
+        opacity: 0,
+        scaleX: 1.5,
+        scaleY: 1.5,
+        duration: 0.5,
+        onFinish: () => {
+          group.destroy();
+          group.getLayer()?.draw();
+        },
+      });
+    }
+  };  
+
   const handleMouseLeave = () => {
     if (groupRef.current) {
       groupRef.current.to({
@@ -47,6 +63,7 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
       ref={groupRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onDblClick={handleDblClick}
     >
       
       {svgImage && (
