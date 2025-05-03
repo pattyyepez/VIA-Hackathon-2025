@@ -102,18 +102,21 @@ const ThoughtForm: React.FC<ThoughtFormProps> = ({
       <div>
         <button
           onClick={onSubmit}
-          disabled={output != ""}
+          disabled={output !== null && output !== ""}
           style={{
             width: 'auto',
             padding: '12px 16px',
             fontSize: '18px',
             border: 'none',
-            backgroundColor: output !== "" ? '#ccc' : '#6c757d',
+            backgroundColor: output !== null && output !== "" ? '#ccc' : '#6c757d',
+            // backgroundColor: '#6c757d',
             color: 'white',
             borderRadius: '12px',
             fontWeight: 'bold',
-            cursor: output !== "" ? 'not-allowed' : 'pointer',
-            opacity: output !== "" ? 0.6 : 1
+            cursor: output !== null && output !== "" ? 'not-allowed' : 'pointer',
+            // cursor: 'pointer',
+            opacity: output !== null && output !== "" ? 0.6 : 1
+            // opacity: 1
           }}
         >
           AI Help ✨
