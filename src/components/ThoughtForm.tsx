@@ -3,6 +3,7 @@ import React from 'react';
 type ThoughtFormProps = {
   title: string;
   body: string;
+  output: string;
   setTitle: (val: string) => void;
   setBody: (val: string) => void;
   onClose: () => void;
@@ -12,6 +13,7 @@ type ThoughtFormProps = {
 const ThoughtForm: React.FC<ThoughtFormProps> = ({
   title,
   body,
+  output,
   setTitle,
   setBody,
   onClose,
@@ -97,23 +99,29 @@ const ThoughtForm: React.FC<ThoughtFormProps> = ({
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
         }}
       />
+      <div>
+        <button
+          onClick={onSubmit}
+          disabled={output != ""}
+          style={{
+            width: 'auto',
+            padding: '12px 16px',
+            fontSize: '18px',
+            border: 'none',
+            backgroundColor: output !== "" ? '#ccc' : '#6c757d',
+            color: 'white',
+            borderRadius: '12px',
+            fontWeight: 'bold',
+            cursor: output !== "" ? 'not-allowed' : 'pointer',
+            opacity: output !== "" ? 0.6 : 1
+          }}
+        >
+          AI Help ✨
+        </button>
 
-      <button
-        onClick={onSubmit}
-        style={{
-          width: 'auto',
-          padding: '12px 16px',
-          fontSize: '18px',
-          border: 'none',
-          backgroundColor: '#6c757d',
-          color: 'white',
-          borderRadius: '12px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-        }}
-      >
-        AI Help ✨
-      </button>
+        {output && <p>AI would create a {output} for this thought bubble!</p>}
+      </div>
+      
     </div>
   );
 };
