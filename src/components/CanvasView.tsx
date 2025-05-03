@@ -6,18 +6,31 @@ import useImage from 'use-image';
 type Thought = {
   x: number;
   y: number;
-  text: string;
+
+  id: string;
+
+  title: string;
+  content: string;
+
+  output: string;
 };
 
 type ThoughtBubbleProps = {
   x: number;
   y: number;
-  text: string;
+
+  id: string;
+
+  title: string;
+  content: string;
+
+  output: string;
+  onClick: (x: number, y: number, id: string, text: string, content: string, output: string) => void;
 };
 
-const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
+const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, id, title, content, output, onClick }) => {
   const groupRef = useRef<Konva.Group>(null);
-  const [svgImage] = useImage('/cloud.png'); 
+  const [svgImage] = useImage('/cloud.png');
 
   const handleMouseEnter = () => {
     if (groupRef.current) {
@@ -30,7 +43,7 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
     }
   };
 
-  const handleDblClick = () => {
+  const handleDblClick = (id: string) => {
     if (groupRef.current) {
       const group = groupRef.current;
       group.to({
@@ -43,8 +56,10 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
           group.getLayer()?.draw();
         },
       });
+
+      fetch('https://localhost:7071/Thought/' + id, { method: 'DELETE' });
     }
-  };  
+  };
 
   const handleMouseLeave = () => {
     if (groupRef.current) {
@@ -63,7 +78,8 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
       ref={groupRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onDblClick={handleDblClick}
+      onDblClick={() => handleDblClick(id)}
+      onClick={() => onClick(x, y, id, title, content, output)}
     >
       {svgImage && (
         <Image
@@ -75,30 +91,38 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, text }) => {
         />
       )}
       <Text
-        text={text}
-        fontSize={19}
+        text={
+          title.length > 30
+            ? title.substring(0, 27).trim() + '...'
+            : title
+        }
+        fontSize={17}
         fontFamily="Helvetica"
-        fontStyle='bold'
+        fontStyle="bold"
         fill="#9d8189"
-        width={80}
+        width={140}
         height={60}
         align="center"
         verticalAlign="middle"
-        offsetX={40}
+        offsetX={70}
         offsetY={40}
       />
+
     </Group>
   );
 };
 
 type CanvasViewProps = {
   thoughts: Thought[];
+  onThoughtClick: (thought: Thought) => void;
 };
 
-const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
+const CanvasView: React.FC<CanvasViewProps> = ({ thoughts, onThoughtClick }) => {
   const layerRef = useRef<any>(null);
+  const stageRef = useRef<any>(null); // ✅ This line is required
 
-  useEffect((): void => {
+
+  useEffect(() => {
     const layer = layerRef.current;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
@@ -107,7 +131,6 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
     const anim = new Konva.Animation((frame: any) => {
       if (!frame) return;
       const time = frame.time / 1000;
-
       const nodes = layer.getChildren();
 
       nodes.forEach((a: any, i: number) => {
@@ -134,28 +157,50 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
 
     anim.start();
   }, []);
+  
+  const handleBubbleClick = (x: number, y: number, id: string, title: string, content: string, output: string) => {
+    onThoughtClick({ x, y, id, title, content, output });
+  };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       <img
-        src="/logo.png"
-        alt="logo"
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-          width: 80,
-          height: 80,
-          zIndex: 10,
-          pointerEvents: 'none',
-        }}
-      />
+  src="/logo.png"
+  alt="logo"
+
+  style={{
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    width: 80,
+    height: 80,
+    zIndex: 10,
+    cursor: 'pointer',
+    pointerEvents: 'auto', // 👈 makes it clickable
+  }}
+  
+  onClick={() => {
+    if (stageRef.current) {
+      stageRef.current.to({
+        position: { x: 0, y: 0 },
+        scaleX: 1,
+        scaleY: 1,
+        duration: 1.2, // smoother duration
+        easing: Konva.Easings.EaseInOut, // smoother motion
+      });
+    }
+  }}
+/>
+
       <Stage
+        ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
         draggable
       >
+        
         <Layer ref={layerRef}>
+          
           <Rect
             x={0}
             y={0}
@@ -164,7 +209,7 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts }) => {
           
           />
           {thoughts.map((t, i) => (
-            <ThoughtBubble key={i} x={t.x} y={t.y} text={t.text} />
+            <ThoughtBubble key={i} x={t.x} y={t.y} id={t.id} title={t.title} content={t.content} output={t.output} onClick={handleBubbleClick} />
           ))}
         </Layer>
       </Stage>
