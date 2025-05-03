@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CanvasView from './components/CanvasView';
 import ThoughtForm from './components/ThoughtForm';
 
 type Thought = {
   x: number;
   y: number;
-  text: string;
+
+  title: string;
+  content: string;
+
+  output: string;
 };
 
 const App: React.FC = () => {
@@ -16,14 +20,45 @@ const App: React.FC = () => {
   const [body, setBody] = useState('');
   const [activeThought, setActiveThought] = useState<Thought | null>(null);
 
+    useEffect(() => {
+      fetch("https://localhost:7071/Thought/")
+      .then(response => response.json())
+      .then(data => data.reduce((acc : Thought[], cur : any) => {
+        acc.push(cur as Thought);
+        return acc;
+      }, []))
+      .then(setThoughts)
+      .catch(console.log);
+
+      console.log(thoughts);
+
+    }, []);
+  // }
+
+  // getThoughts();
+
   const addThought = (text: string) => {
     const angle = Math.random() * 2 * Math.PI;
     const radius = 300 + Math.random() * 100;
     const newThought = {
       x: window.innerWidth / 2 + Math.cos(angle) * radius,
       y: window.innerHeight / 2 + Math.sin(angle) * radius,
-      text,
+      title: text,
+      content: '',
+      output: ''
     };
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: text, content: '' })
+    };
+
+    fetch('https://localhost:7071/Thought', requestOptions)
+      .then(response => response.json())
+      .then(setActiveThought)
+      .catch(console.log);
+
     setThoughts((prev) => [...prev, newThought]);
   
     setActiveThought(newThought);
@@ -35,8 +70,8 @@ const App: React.FC = () => {
 
   const handleThoughtClick = (thought: Thought) => {
     setActiveThought(thought);
-    setTitle(thought.text);
-    setBody('');
+    setTitle(thought.title);
+    setBody(thought.content);
     setFormOpen(true);
   };
 
@@ -99,7 +134,9 @@ const App: React.FC = () => {
           body={body}
           setTitle={setTitle}
           setBody={setBody}
-          onClose={() => setFormOpen(false)}
+          onClose={() => {
+            
+          }}
           onSubmit={() => {
             alert(`AI:\nTitle: ${title}\nBody: ${body}`);
             setFormOpen(false);
