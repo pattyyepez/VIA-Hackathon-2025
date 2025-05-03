@@ -91,18 +91,23 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, id, title, content,
         />
       )}
       <Text
-        text={title}
-        fontSize={19}
+        text={
+          title.length > 30
+            ? title.substring(0, 27).trim() + '...'
+            : title
+        }
+        fontSize={17}
         fontFamily="Helvetica"
         fontStyle="bold"
         fill="#9d8189"
-        width={80}
+        width={140}
         height={60}
         align="center"
         verticalAlign="middle"
-        offsetX={40}
+        offsetX={70}
         offsetY={40}
       />
+
     </Group>
   );
 };
