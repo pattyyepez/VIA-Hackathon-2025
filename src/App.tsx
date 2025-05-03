@@ -37,7 +37,7 @@ const App: React.FC = () => {
     }, []);
 
 
-  const addThought = (text: string) => {
+  const addThought = async (text: string) => {
     const angle = Math.random() * 2 * Math.PI;
     const radius = 300 + Math.random() * 100;
 
@@ -47,16 +47,15 @@ const App: React.FC = () => {
       body: JSON.stringify({ title: text, content: '' })
     };
 
-    fetch('https://localhost:7071/Thought', requestOptions)
-      .then(response => response.json())
-      .then(setActiveThought)
-      .catch(console.log);
+    const response = await fetch('https://localhost:7071/Thought', requestOptions);
+    const data = await response.json();
+    setActiveThought(data);
 
       const newThought = {
         x: window.innerWidth / 2 + Math.cos(angle) * radius,
         y: window.innerHeight / 2 + Math.sin(angle) * radius,
         title: text,
-        id: activeThought!.id,
+        id: data.id,
         content: '',
         output: ''
       };

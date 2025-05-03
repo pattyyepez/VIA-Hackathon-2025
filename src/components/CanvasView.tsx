@@ -43,7 +43,7 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, id, title, content,
     }
   };
 
-  const handleDblClick = () => {
+  const handleDblClick = (id: string) => {
     if (groupRef.current) {
       const group = groupRef.current;
       group.to({
@@ -54,10 +54,10 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, id, title, content,
         onFinish: () => {
           group.destroy();
           group.getLayer()?.draw();
-
-
         },
       });
+
+      fetch('https://localhost:7071/Thought/' + id, { method: 'DELETE' });
     }
   };
 
@@ -78,7 +78,7 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, id, title, content,
       ref={groupRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onDblClick={handleDblClick}
+      onDblClick={() => handleDblClick(id)}
       onClick={() => onClick(x, y, id, title, content, output)}
     >
       {svgImage && (
