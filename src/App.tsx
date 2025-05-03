@@ -68,7 +68,31 @@ const App: React.FC = () => {
     setBody('');
     setFormOpen(true);
   };
+
+  const updateThought = ( id: string, title: string, content: string ) => {
+
+    const requestOptions = {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, title: title, content: content })
+    };
+
+    fetch('https://localhost:7071/Thought', requestOptions)
+      .then(response => response.json())
+      .then(console.log)
+      .catch(console.log);
+    
+    var thoughtsToUpdate = thoughts;
+    thoughtsToUpdate = thoughtsToUpdate.map(elem => {
+      if(id == elem.id){
+        return {...elem, title: title, content: content}
+      }
+      return elem;
+    });
+    setThoughts(thoughtsToUpdate);
   
+    setFormOpen(false);
+  };
 
   const handleThoughtClick = (thought: Thought) => {
     setActiveThought(thought);
@@ -136,11 +160,11 @@ const App: React.FC = () => {
           body={body}
           setTitle={setTitle}
           setBody={setBody}
-          onClose={() => setFormOpen(false)}
-          onSubmit={() => {
+          onClose={ () => updateThought(activeThought!.id, title, body)}
+          onSubmit={ () => {
             alert(`AI:\nTitle: ${title}\nBody: ${body}`);
             setFormOpen(false);
-          }}
+          } }
         />
       )}
     </div>
