@@ -6,6 +6,8 @@ type Thought = {
   x: number;
   y: number;
 
+  id: string;
+
   title: string;
   content: string;
 
@@ -33,20 +35,11 @@ const App: React.FC = () => {
       console.log(thoughts);
 
     }, []);
-  // }
 
-  // getThoughts();
 
   const addThought = (text: string) => {
     const angle = Math.random() * 2 * Math.PI;
     const radius = 300 + Math.random() * 100;
-    const newThought = {
-      x: window.innerWidth / 2 + Math.cos(angle) * radius,
-      y: window.innerHeight / 2 + Math.sin(angle) * radius,
-      title: text,
-      content: '',
-      output: ''
-    };
 
     const requestOptions = {
       method: 'POST',
@@ -58,6 +51,15 @@ const App: React.FC = () => {
       .then(response => response.json())
       .then(setActiveThought)
       .catch(console.log);
+
+      const newThought = {
+        x: window.innerWidth / 2 + Math.cos(angle) * radius,
+        y: window.innerHeight / 2 + Math.sin(angle) * radius,
+        title: text,
+        id: activeThought!.id,
+        content: '',
+        output: ''
+      };
 
     setThoughts((prev) => [...prev, newThought]);
   
@@ -134,9 +136,7 @@ const App: React.FC = () => {
           body={body}
           setTitle={setTitle}
           setBody={setBody}
-          onClose={() => {
-            
-          }}
+          onClose={() => setFormOpen(false)}
           onSubmit={() => {
             alert(`AI:\nTitle: ${title}\nBody: ${body}`);
             setFormOpen(false);

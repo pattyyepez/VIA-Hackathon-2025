@@ -7,6 +7,8 @@ type Thought = {
   x: number;
   y: number;
 
+  id: string;
+
   title: string;
   content: string;
 
@@ -17,14 +19,16 @@ type ThoughtBubbleProps = {
   x: number;
   y: number;
 
+  id: string;
+
   title: string;
   content: string;
 
   output: string;
-  onClick: (x: number, y: number, text: string, content: string, output: string) => void;
+  onClick: (x: number, y: number, id: string, text: string, content: string, output: string) => void;
 };
 
-const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, title, content, output, onClick }) => {
+const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, id, title, content, output, onClick }) => {
   const groupRef = useRef<Konva.Group>(null);
   const [svgImage] = useImage('/cloud.png');
 
@@ -50,6 +54,8 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, title, content, out
         onFinish: () => {
           group.destroy();
           group.getLayer()?.draw();
+
+
         },
       });
     }
@@ -73,7 +79,7 @@ const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({ x, y, title, content, out
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onDblClick={handleDblClick}
-      onClick={() => onClick(x, y, title, content, output)}
+      onClick={() => onClick(x, y, id, title, content, output)}
     >
       {svgImage && (
         <Image
@@ -147,8 +153,8 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts, onThoughtClick }) => 
     anim.start();
   }, []);
   
-  const handleBubbleClick = (x: number, y: number, title: string, content: string, output: string) => {
-    onThoughtClick({ x, y, title, content, output });
+  const handleBubbleClick = (x: number, y: number, id: string, title: string, content: string, output: string) => {
+    onThoughtClick({ x, y, id, title, content, output });
   };
 
   return (
@@ -198,7 +204,7 @@ const CanvasView: React.FC<CanvasViewProps> = ({ thoughts, onThoughtClick }) => 
           
           />
           {thoughts.map((t, i) => (
-            <ThoughtBubble key={i} x={t.x} y={t.y} title={t.title} content={t.content} output={t.output} onClick={handleBubbleClick} />
+            <ThoughtBubble key={i} x={t.x} y={t.y} id={t.id} title={t.title} content={t.content} output={t.output} onClick={handleBubbleClick} />
           ))}
         </Layer>
       </Stage>
