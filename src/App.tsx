@@ -136,7 +136,6 @@ const App: React.FC = () => {
 
     fetch('https://localhost:7071/Thought', requestOptions)
       .then(response => response.json())
-      .then(console.log)
       .catch(console.log);
     
     var thoughtsToUpdate = thoughts;
@@ -271,11 +270,21 @@ const App: React.FC = () => {
         <ThoughtForm
           title={title}
           body={body}
+          output={activeThought!.output}
           setTitle={setTitle}
           setBody={setBody}
           onClose={ () => updateThought(activeThought!.id, title, body)}
-          onSubmit={ () => {
-            alert(`AI:\nTitle: ${title}\nBody: ${body}`);
+          onSubmit={ async () => {
+            console.log("heres this: " + activeThought!.id);
+            fetch('https://localhost:7071/Prompt', {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id : activeThought!.id })
+            })
+            .then(console.log)
+            .catch(console.log);
             setFormOpen(false);
           } }
         />
