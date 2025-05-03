@@ -1,113 +1,191 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CanvasView from './components/CanvasView';
 import ThoughtForm from './components/ThoughtForm';
 
 type Thought = {
-  x: number;
-  y: number;
-  text: string;
+    x: number;
+    y: number;
+    text: string;
 };
 
 const App: React.FC = () => {
-  const [thoughts, setThoughts] = useState<Thought[]>([]);
-  const [newText, setNewText] = useState('');
-  const [formOpen, setFormOpen] = useState(false);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [activeThought, setActiveThought] = useState<Thought | null>(null);
+    // all your state
+    const [thoughts, setThoughts] = useState<Thought[]>([]);
+    const [newText, setNewText] = useState('');
+    const [formOpen, setFormOpen] = useState(false);
+    const [title, setTitle] = useState('');
+    const [body, setBody] = useState('');
+    const [activeThought, setActiveThought] = useState<Thought | null>(null);
+    const [isListening, setIsListening] = useState(false); // <== MISSING
+    const recognitionRef = useRef<any>(null);
 
-  const addThought = (text: string) => {
-    const angle = Math.random() * 2 * Math.PI;
-    const radius = 300 + Math.random() * 100;
-    const newThought = {
-      x: window.innerWidth / 2 + Math.cos(angle) * radius,
-      y: window.innerHeight / 2 + Math.sin(angle) * radius,
-      text,
+    // all functions
+    const addThought = (text: string) => {
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = 300 + Math.random() * 100;
+        const newThought = {
+            x: window.innerWidth / 2 + Math.cos(angle) * radius,
+            y: window.innerHeight / 2 + Math.sin(angle) * radius,
+            text,
+        };
+        setThoughts((prev) => [...prev, newThought]);
+        setActiveThought(newThought);
+        setTitle(text);
+        setBody('');
+        setFormOpen(true);
     };
-    setThoughts((prev) => [...prev, newThought]);
-  
-    setActiveThought(newThought);
-    setTitle(text);
-    setBody('');
-    setFormOpen(true);
-  };
-  
 
-  const handleThoughtClick = (thought: Thought) => {
-    setActiveThought(thought);
-    setTitle(thought.text);
-    setBody('');
-    setFormOpen(true);
-  };
+    const handleThoughtClick = (thought: Thought) => {
+        setActiveThought(thought);
+        setTitle(thought.text);
+        setBody('');
+        setFormOpen(true);
+    };
 
-  return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 0,
-          background: 'linear-gradient(115deg, rgba(255,255,255,0.9), rgba(255,192,203,0.5), rgba(173,216,230,0.3))',
-          backgroundSize: '400% 400%',
-          animation: 'gradientShift 15s ease infinite',
-        }}
-      />
+    const toggleListening = () => {
+        if (!recognitionRef.current) return;
+        if (!isListening) {
+            recognitionRef.current.start();
+            setIsListening(true);
+        } else {
+            recognitionRef.current.stop();
+            setIsListening(false);
+        }
+    };
 
-      <input
-        type="text"
-        value={newText}
-        onChange={(e) => setNewText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && newText.trim()) {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewText(e.target.value);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && newText.trim()) {
             addThought(newText.trim());
             setNewText('');
-          }
-        }}
-        placeholder="what are you thinking..."
-        style={{
-          position: 'absolute',
-          top: '90px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '400px',
-          padding: '12px 16px',
-          fontSize: '21px',
-          border: 'none',
-          outline: 'none',
-          backgroundColor: 'rgba(255, 255, 255, 0.3)',
-          color: '#333',
-          borderRadius: '12px',
-          textAlign: 'left',
-          fontFamily: 'Helvetica',
-          fontWeight: 'bold',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backdropFilter: 'blur(6px)',
-          zIndex: 100,
-        }}
-      />
+        }
+    };
 
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <CanvasView thoughts={thoughts} onThoughtClick={handleThoughtClick} />
-      </div>
+    useEffect(() => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Speech recognition is not supported in your browser.');
+            return;
+        }
 
-      {formOpen && (
-        <ThoughtForm
-          title={title}
-          body={body}
-          setTitle={setTitle}
-          setBody={setBody}
-          onClose={() => setFormOpen(false)}
-          onSubmit={() => {
-            alert(`AI:\nTitle: ${title}\nBody: ${body}`);
-            setFormOpen(false);
-          }}
-        />
-      )}
-    </div>
-  );
+        const recognition = new (window as any).webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event: any) => {
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                finalTranscript += result[0].transcript;
+            }
+            setNewText(finalTranscript);
+        };
+
+        recognition.onerror = (e: any) => console.error('Speech error:', e.error);
+        recognition.onend = () => setIsListening(false);
+        recognitionRef.current = recognition;
+
+        return () => recognition.stop();
+    }, []);
+
+    // ✅ THE ONE AND ONLY RETURN STATEMENT
+    return (
+        <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+            {/* 🌈 Gradient background */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 0,
+                    background: 'linear-gradient(115deg, rgba(255,255,255,0.9), rgba(255,192,203,0.5), rgba(173,216,230,0.3))',
+                    backgroundSize: '400% 400%',
+                    animation: 'gradientShift 15s ease infinite',
+                }}
+            />
+
+            {/* 🧠 Input + Mic */}
+            <div
+                style={{
+                    position: 'absolute',
+                    top: '90px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    width: '500px',
+                    zIndex: 100,
+                }}
+            >
+                <input
+                    type="text"
+                    value={newText}
+                    onChange={(e) => setNewText(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newText.trim()) {
+                            addThought(newText.trim());
+                            setNewText('');
+                        }
+                    }}
+                    placeholder="What are you thinking?"
+                    style={{
+                        flex: 1,
+                        padding: '12px 16px',
+                        fontSize: '21px',
+                        border: 'none',
+                        outline: 'none',
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        color: '#333',
+                        borderRadius: '12px 0 0 12px',
+                        fontFamily: 'Helvetica',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        backdropFilter: 'blur(6px)',
+                    }}
+                />
+                <button
+                    onClick={toggleListening}
+                    style={{
+                        width: '60px',
+                        backgroundColor: isListening ? '#FF5733' : '#4CAF50',
+                        border: 'none',
+                        borderRadius: '0 12px 12px 0',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '6px',
+                    }}
+                    title={isListening ? 'Stop listening' : 'Start listening'}
+                >
+                    <img src="/micro.png" alt="Mic" style={{ width: '24px', height: '24px' }} />
+                </button>
+            </div>
+
+            {/* 🧠 Canvas */}
+            <div style={{ position: 'relative', zIndex: 1 }}>
+                <CanvasView thoughts={thoughts} onThoughtClick={handleThoughtClick} />
+            </div>
+
+            {formOpen && (
+                <ThoughtForm
+                    title={title}
+                    body={body}
+                    setTitle={setTitle}
+                    setBody={setBody}
+                    onClose={() => setFormOpen(false)}
+                    onSubmit={() => {
+                        alert(`AI:\nTitle: ${title}\nBody: ${body}`);
+                        setFormOpen(false);
+                    }}
+                />
+            )}
+        </div>
+    );
 };
 
 export default App;
