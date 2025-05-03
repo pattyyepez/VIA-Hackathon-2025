@@ -64,6 +64,13 @@ const App: React.FC = () => {
         }
     };
 
+    const handleArrowClick = () => {
+        if (newText.trim()) {
+            addThought(newText.trim()); // This will add the new thought to the bubbles
+            setNewText(''); // Optionally clear the input after sending the thought
+        }
+    };
+
     useEffect(() => {
         if (!('webkitSpeechRecognition' in window)) {
             alert('Speech recognition is not supported in your browser.');
@@ -91,10 +98,9 @@ const App: React.FC = () => {
         return () => recognition.stop();
     }, []);
 
-    // ✅ THE ONE AND ONLY RETURN STATEMENT
     return (
         <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
-            {/* 🌈 Gradient background */}
+
             <div
                 style={{
                     position: 'fixed',
@@ -108,8 +114,6 @@ const App: React.FC = () => {
                     animation: 'gradientShift 15s ease infinite',
                 }}
             />
-
-            {/* 🧠 Input + Mic */}
             <div
                 style={{
                     position: 'absolute',
@@ -119,6 +123,9 @@ const App: React.FC = () => {
                     display: 'flex',
                     width: '500px',
                     zIndex: 100,
+                    borderRadius: '12px', // Rounded corners for the whole container
+                    overflow: 'hidden', // Ensures the buttons stay inside the container
+                    border: '1px solid rgba(0,0,0,0.1)', // Optional: Add a light border
                 }}
             >
                 <input
@@ -140,33 +147,61 @@ const App: React.FC = () => {
                         outline: 'none',
                         backgroundColor: 'rgba(255, 255, 255, 0.3)',
                         color: '#333',
-                        borderRadius: '12px 0 0 12px',
                         fontFamily: 'Helvetica',
                         fontWeight: 'bold',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                         backdropFilter: 'blur(6px)',
                     }}
                 />
-                <button
-                    onClick={toggleListening}
-                    style={{
-                        width: '60px',
-                        backgroundColor: isListening ? '#FF5733' : '#4CAF50',
-                        border: 'none',
-                        borderRadius: '0 12px 12px 0',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '6px',
-                    }}
-                    title={isListening ? 'Stop listening' : 'Start listening'}
-                >
-                    <img src="/micro.png" alt="Mic" style={{ width: '24px', height: '24px' }} />
-                </button>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px' }}>
+                    <button
+                        onClick={toggleListening}
+                        style={{
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            borderRadius: '50%',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'transform 0.3s ease-in-out',
+                            ...(isListening ? { transform: 'scale(1.2)' } : {}),
+                        }}
+                        title={isListening ? 'Stop listening' : 'Start listening'}
+                    >
+                        <img
+                            src="/micro.png"
+                            alt="Mic"
+                            style={{
+                                width: '24px',
+                                height: '24px',
+                                ...(isListening ? { animation: 'pulse 1s infinite' } : {}),
+                            }}
+                        />
+                    </button>
+                    <button
+                        onClick={handleArrowClick}
+                        style={{
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            borderRadius: '50%',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        title="Send thought"
+                    >
+                        <img src="/arrow.png" alt="Arrow" style={{ width: '40px', height: '40px' }} />
+                    </button>
+                </div>
             </div>
 
-            {/* 🧠 Canvas */}
             <div style={{ position: 'relative', zIndex: 1 }}>
                 <CanvasView thoughts={thoughts} onThoughtClick={handleThoughtClick} />
             </div>
